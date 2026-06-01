@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAR — Rangos de Renta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:    #00A8B4;
+  --primary-dk: #008a94;
+  --primary-lt: #E6F7F8;
+  --gray:       #747678;
+  --gray-lt:    #F4FAFB;
+  --dark:       #2C2C2C;
+  --white:      #FFFFFF;
+  --divider:    #E0E0E0;
+  --orange:     #E67E22;
+  --green:      #27AE60;
+  --red:        #E74C3C;
+  --font:       'Aileron', 'Inter', 'Arial', sans-serif;
+  --radius:     12px;
+  --shadow:     0 2px 16px rgba(0,168,180,0.08), 0 1px 4px rgba(0,0,0,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--gray-lt); color: var(--dark); min-height: 100vh; }
+
+/* ── HEADER ── */
+header {
+  background: var(--primary);
+  padding: 0 36px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand { display: flex; flex-direction: column; }
+.brand-name { color: white; font-size: 1rem; font-weight: 700; letter-spacing: 0.2px; }
+.brand-sub  { color: rgba(255,255,255,0.7); font-size: 0.68rem; font-weight: 500;
+              text-transform: uppercase; letter-spacing: 1.2px; }
+#uf-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* ── LAYOUT ── */
+main { max-width: 1020px; margin: 28px auto; padding: 0 20px 52px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px 30px;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+.card-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-title::before {
+  content: '';
+  display: block;
+  width: 3px;
+  height: 14px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* ── RECIENTES ── */
+#recientes {
+  display: none;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 16px;
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.recientes-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray);
+  white-space: nowrap;
+}
+.hist-chip {
+  background: var(--gray-lt);
+  border: 1.5px solid var(--divider);
+  color: var(--dark);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.hist-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lt); }
+
+/* ── STEPS ── */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.step-header { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+.step-num {
+  width: 18px; height: 18px;
+  background: var(--primary);
+  color: white; border-radius: 50%;
+  font-size: 0.6rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-num.gray { background: var(--gray); }
+.step-label {
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--gray); text-transform: uppercase; letter-spacing: 0.9px;
+}
+
+/* ── SELECT ── */
+select {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border: 1.5px solid var(--divider);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: var(--font);
+  background: white;
+  color: var(--dark);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23747678' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,168,180,0.12); }
+select:disabled { background-color: #FAFAFA; color: #C0C0C0; cursor: not-allowed; }
+
+/* ── UF ROW ── */
+.uf-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 20px; padding-top: 20px;
+  border-top: 1px solid var(--divider);
+}
+.uf-label { font-size: 0.68rem; font-weight: 600; color: var(--gray);
+            text-transform: uppercase; letter-spacing: 0.9px; white-space: nowrap; }
+input[type="number"] {
+  width: 190px; padding: 10px 12px;
+  border: 1.5px solid var(--divider); border-radius: 8px;
+  font-size: 0.9rem; font-family: var(--font); color: var(--dark);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="number"]:focus { outline: none; border-color: var(--primary);
+                              box-shadow: 0 0 0 3px rgba(0,168,180,0.12); }
+.uf-hint { font-size: 0.75rem; color: #B0B0B0; }
+
+/* ── BTN CALCULAR ── */
+.btn-calc {
+  width: 100%; margin-top: 22px;
+  background: var(--primary); color: white; border: none;
+  padding: 13px; border-radius: 8px;
+  font-size: 0.96rem; font-weight: 600; font-family: var(--font);
+  cursor: pointer; letter-spacing: 0.3px;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.btn-calc:hover:not(:disabled) { background: var(--primary-dk); box-shadow: 0 4px 12px rgba(0,168,180,0.35); }
+.btn-calc:active:not(:disabled) { transform: scale(0.99); }
+.btn-calc:disabled { background: #E8E8E8; color: #ABABAB; cursor: not-allowed; box-shadow: none; }
+.error-msg { color: var(--red); font-size: 0.8rem; margin-top: 10px; display: block; min-height: 18px; }
+
+/* ── RESULTADO ── */
+#resultado { display: none; }
+
+/* meta chips */
+.meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+.chip {
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 0.73rem; font-weight: 500;
+  background: var(--gray-lt); color: var(--gray);
+}
+.chip.accent { background: var(--primary-lt); color: var(--primary); font-weight: 600; }
+
+/* ── SINGLE MODE: renta grid ── */
+.renta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* ── COMPARE MODE ── */
+.compare-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.compare-col { display: flex; flex-direction: column; }
+.compare-col-header {
+  padding: 10px 14px 12px;
+  background: var(--primary-lt);
+  border: 1.5px solid var(--primary);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+.compare-col-name { font-size: 0.84rem; font-weight: 700; color: var(--primary); display: block; }
+.compare-col-sub  { font-size: 0.71rem; color: var(--gray); display: block; margin-top: 2px; }
+.compare-col-cards {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px 0 0;
+}
+
+/* ── RENTA CARD ── */
+.renta-card {
+  border-radius: 10px; padding: 18px 16px;
+  border: 1.5px solid var(--divider);
+  position: relative; overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.renta-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.renta-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+}
+.renta-card.minima::before      { background: var(--orange); }
+.renta-card.ideal::before       { background: var(--primary); }
+.renta-card.garantizada::before { background: var(--green); }
+
+.rc-tipo {
+  font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px;
+}
+.renta-card.minima      .rc-tipo { color: var(--orange); }
+.renta-card.ideal       .rc-tipo { color: var(--primary); }
+.renta-card.garantizada .rc-tipo { color: var(--green); }
+
+.rc-factor {
+  display: inline-block; background: var(--gray-lt); color: var(--gray);
+  font-size: 0.66rem; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px; margin-bottom: 14px;
+}
+.rc-range { display: flex; flex-direction: column; gap: 8px; }
+.rc-amount { display: flex; flex-direction: column; gap: 1px; }
+.rc-clp { font-size: 1rem; font-weight: 700; color: var(--dark); }
+.rc-uf  { font-size: 0.72rem; color: var(--gray); }
+.rc-sep { font-size: 0.62rem; color: #C8C8C8; font-weight: 600;
+          text-transform: uppercase; letter-spacing: 0.8px; }
+
+/* ── COPY / ACTION AREA ── */
+.copy-wrap { border-top: 1px solid var(--divider); padding-top: 20px; margin-top: 4px; }
+.copy-preview {
+  background: #F7F8FA; border: 1px solid var(--divider); border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 14px;
+  font-family: 'Courier New', monospace; font-size: 0.76rem;
+  color: #5A5A5A; line-height: 1.7; white-space: pre; overflow-x: auto;
+}
+.copy-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+
+.btn-act {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all 0.15s; border: 2px solid;
+  white-space: nowrap;
+}
+.btn-act.outline { background: white; color: var(--primary); border-color: var(--primary); }
+.btn-act.outline:hover { background: var(--primary); color: white; }
+.btn-act.ghost { background: white; color: var(--gray); border-color: var(--divider); }
+.btn-act.ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn-act.danger { background: white; color: var(--red); border-color: var(--red); }
+.btn-act.danger:hover { background: var(--red); color: white; }
+.btn-act.compare { background: white; color: var(--primary); border-color: var(--primary); }
+.btn-act.compare:hover { background: var(--primary-lt); }
+
+.copy-confirm {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.8rem; font-weight: 500;
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+.copy-confirm.green { color: var(--green); }
+.copy-confirm.blue  { color: var(--primary); }
+
+/* ── COMPARE SELECTOR CARD ── */
+#card-compare-sel {
+  display: none;
+  border: 2px dashed var(--primary);
+}
+#card-compare-sel .card-title::before { background: var(--gray); }
+.compare-btn-row { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
+.compare-btn-row .btn-calc { margin-top: 0; flex: 1; }
+
+/* ── LOGIN OVERLAY ── */
+#login-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.4s;
+}
+#login-overlay.fade-out { opacity: 0; pointer-events: none; }
+#login-box {
+  background: white;
+  border-radius: 16px;
+  padding: 44px 40px 36px;
+  width: 340px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  text-align: center;
+}
+.login-brand-name {
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--primary); letter-spacing: 0.3px;
+}
+.login-brand-sub {
+  font-size: 0.7rem; font-weight: 600; color: var(--gray);
+  text-transform: uppercase; letter-spacing: 1.4px;
+  margin-bottom: 32px; display: block; margin-top: 4px;
+}
+#login-password {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--divider); border-radius: 8px;
+  font-size: 1rem; font-family: var(--font);
+  text-align: center; letter-spacing: 2px;
+  margin-bottom: 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#login-password:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,168,180,0.15);
+}
+#login-btn {
+  width: 100%; padding: 12px;
+  background: var(--primary); color: white; border: none;
+  border-radius: 8px; font-size: 0.96rem; font-weight: 600;
+  font-family: var(--font); cursor: pointer;
+  transition: background 0.15s;
+}
+#login-btn:hover:not(:disabled) { background: var(--primary-dk); }
+#login-btn:disabled { background: #ccc; cursor: not-allowed; }
+#login-error {
+  display: block; margin-top: 10px; min-height: 18px;
+  font-size: 0.8rem; color: var(--red);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 720px) {
+  header { padding: 0 16px; }
+  main { padding: 0 12px 40px; margin-top: 16px; }
+  .card { padding: 20px 16px; }
+  .steps { grid-template-columns: 1fr; }
+  .renta-grid { grid-template-columns: 1fr; }
+  .compare-cols { grid-template-columns: 1fr; }
+  .uf-row { flex-wrap: wrap; }
+  .copy-actions { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div id="login-box">
+    <div class="login-brand-name">LAR Group</div>
+    <span class="login-brand-sub">Rangos de Renta</span>
+    <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password">
+    <button id="login-btn">Ingresar</button>
+    <span id="login-error"></span>
+  </div>
+</div>
+
+<header>
+  <div class="brand">
+    <span class="brand-name">LAR Group</span>
+    <span class="brand-sub">Rangos de Renta</span>
+  </div>
+  <div id="uf-badge">Cargando UF...</div>
+</header>
+
+<main>
+
+  <!-- Recientes -->
+  <div id="recientes">
+    <span class="recientes-label">Recientes</span>
+    <div id="recientes-chips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+
+  <!-- Selector principal -->
+  <div class="card">
+    <div class="card-title">Seleccionar Unidad</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <span class="step-label">Proyecto</span>
+        </div>
+        <select id="sel-proyecto"><option value="">Cargando...</option></select>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <span class="step-label">Tipología</span>
+        </div>
+        <select id="sel-tipologia" disabled><option value="">Selecciona proyecto</option></select>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <span class="step-label">Modelo</span>
+        </div>
+        <select id="sel-modelo" disabled><option value="">Selecciona tipología</option></select>
+      </div>
+    </div>
+
+    <div class="uf-row">
+      <span class="uf-label">UF del día</span>
+      <input type="number" id="uf-manual" step="0.01" placeholder="Automático">
+      <span class="uf-hint">Vacío = valor automático</span>
+    </div>
+
+    <button id="btn-calcular" class="btn-calc" disabled>Calcular Rangos de Renta</button>
+    <span id="error-msg" class="error-msg"></span>
+  </div>
+
+  <!-- Resultado principal -->
+  <div class="card" id="resultado">
+    <div class="card-title">Renta Requerida</div>
+    <div class="meta-row" id="meta-row-a"></div>
+    <div id="result-body"></div>
+    <div class="copy-wrap">
+      <div class="copy-preview" id="copy-preview"></div>
+      <div class="copy-actions">
+        <button class="btn-act outline" id="btn-copiar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Copiar para formulario
+        </button>
+        <button class="btn-act ghost" id="btn-copiar-url">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+          </svg>
+          Copiar enlace
+        </button>
+        <button class="btn-act compare" id="btn-comparar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <rect x="2" y="3" width="8" height="18" rx="1.5"/>
+            <rect x="14" y="3" width="8" height="18" rx="1.5"/>
+          </svg>
+          Comparar
+        </button>
+        <button class="btn-act danger" id="btn-quitar-compare" style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Quitar comparación
+        </button>
+        <span class="copy-confirm green" id="copiar-confirm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Copiado
+        </span>
+        <span class="copy-confirm blue" id="url-confirm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Enlace copiado
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selector de comparación -->
+  <div class="card" id="card-compare-sel">
+    <div class="card-title">Comparar con</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num gray">1</div>
+          <span class="step-label">Proyecto</span>
+        </div>
+        <select id="sel-proyecto-b"><option value="">Cargando...</option></select>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num gray">2</div>
+          <span class="step-label">Tipología</span>
+        </div>
+        <select id="sel-tipologia-b" disabled><option value="">Selecciona proyecto</option></select>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num gray">3</div>
+          <span class="step-label">Modelo</span>
+        </div>
+        <select id="sel-modelo-b" disabled><option value="">Selecciona tipología</option></select>
+      </div>
+    </div>
+    <div class="compare-btn-row">
+      <button id="btn-calcular-b" class="btn-calc" disabled>Calcular comparación</button>
+      <button class="btn-act danger" id="btn-cancelar-compare">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const API = "http://localhost:8001";
+let ultimoResultado = null;
+
+// ── LOGIN ────────────────────────────────────────
+function authHeaders() {
+  const token = sessionStorage.getItem('rangos-token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
+async function doLogin() {
+  const pw  = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  if (!pw) return;
+  err.textContent = "";
+  btn.textContent = "Verificando...";
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    });
+    if (!r.ok) {
+      err.textContent = "Contraseña incorrecta";
+      document.getElementById('login-password').value = "";
+      document.getElementById('login-password').focus();
+      return;
+    }
+    const { token } = await r.json();
+    sessionStorage.setItem('rangos-token', token);
+    const overlay = document.getElementById('login-overlay');
+    overlay.classList.add('fade-out');
+    setTimeout(() => overlay.style.display = 'none', 400);
+    init();
+  } catch {
+    err.textContent = "Error de conexión";
+  } finally {
+    btn.textContent = "Ingresar";
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// Check existing session
+if (sessionStorage.getItem('rangos-token')) {
+  document.getElementById('login-overlay').style.display = 'none';
+}
+let resultadoB      = null;
+let ufCargado       = null;
+let proyectoNombreA = "";
+let proyectoNombreB = "";
+let modoCompare     = false;
+
+// ── UTILS ────────────────────────────────────────
+const fmt   = n => "$" + n.toLocaleString("es-CL");
+const fmtUF = n => n.toFixed(2) + " UF";
+
+function showConfirm(id) {
+  const el = document.getElementById(id);
+  el.style.opacity = "1";
+  setTimeout(() => el.style.opacity = "0", 2500);
+}
+
+// ── HISTORY ──────────────────────────────────────
+const HIST_KEY = 'lar-rangos-hist';
+
+function saveHistory(d, nombre) {
+  let h = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+  h = h.filter(x => !(x.proyecto_id === d.proyecto_id && x.tipologia === d.tipologia && x.modelo === d.modelo));
+  h.unshift({ proyecto_id: d.proyecto_id, proyecto: nombre, tipologia: d.tipologia, modelo: d.modelo });
+  localStorage.setItem(HIST_KEY, JSON.stringify(h.slice(0, 5)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const h = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+  const wrap  = document.getElementById('recientes');
+  const chips = document.getElementById('recientes-chips');
+  if (!h.length) { wrap.style.display = 'none'; return; }
+  chips.innerHTML = h.map((e, i) =>
+    `<button class="hist-chip" onclick="cargarDesdeHistorial(${i})">${e.proyecto} · ${e.tipologia} · ${e.modelo}</button>`
+  ).join('');
+  wrap.style.display = 'flex';
+}
+
+async function cargarDesdeHistorial(idx) {
+  const h = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+  const e = h[idx]; if (!e) return;
+  const selP = document.getElementById('sel-proyecto');
+  selP.value = e.proyecto_id;
+  await loadSelectors('a', e.proyecto_id, e.tipologia, e.modelo);
+  document.getElementById('btn-calcular').click();
+}
+
+// Generic selector loader (used by history + URL restore)
+async function loadSelectors(suffix, pid, tip, mod) {
+  const tipId = suffix === 'b' ? 'sel-tipologia-b' : 'sel-tipologia';
+  const modId = suffix === 'b' ? 'sel-modelo-b'    : 'sel-modelo';
+  const btnId = suffix === 'b' ? 'btn-calcular-b'  : 'btn-calcular';
+
+  const tipEl = document.getElementById(tipId);
+  tipEl.disabled = true;
+  tipEl.innerHTML = '<option value="">Cargando...</option>';
+  resetModelo(suffix);
+
+  const tipData = await (await fetch(`${API}/tipologias?proyecto_id=${pid}`, { headers: authHeaders() })).json();
+  tipEl.innerHTML = '<option value="">— Selecciona tipología —</option>';
+  tipData.forEach(t => tipEl.appendChild(new Option(t, t)));
+  tipEl.disabled = false;
+  tipEl.value = tip;
+
+  const modEl = document.getElementById(modId);
+  modEl.disabled = true;
+  modEl.innerHTML = '<option value="">Cargando...</option>';
+  document.getElementById(btnId).disabled = true;
+
+  const modData = await (await fetch(`${API}/modelos?proyecto_id=${pid}&tipologia=${encodeURIComponent(tip)}`, { headers: authHeaders() })).json();
+  modEl.innerHTML = '<option value="">— Selecciona modelo —</option>';
+  modData.forEach(m => modEl.appendChild(new Option(m, m)));
+  modEl.disabled = false;
+  modEl.value = mod;
+  document.getElementById(btnId).disabled = !mod;
+}
+
+// ── UF ──────────────────────────────────────────
+async function cargarUF() {
+  try {
+    const r = await fetch(`${API}/uf`, { headers: authHeaders() });
+    if (r.status === 401) { sessionStorage.removeItem('rangos-token'); location.reload(); return; }
+    const d = await r.json();
+    ufCargado = d.valor;
+    document.getElementById("uf-badge").textContent =
+      `UF ${d.fecha}  $${d.valor.toLocaleString("es-CL", {minimumFractionDigits:2})}`;
+    document.getElementById("uf-manual").placeholder =
+      d.valor.toLocaleString("es-CL", {minimumFractionDigits:2});
+  } catch {
+    document.getElementById("uf-badge").textContent = "UF no disponible";
+  }
+}
+
+// ── PROYECTOS ────────────────────────────────────
+async function cargarProyectos() {
+  const selA = document.getElementById("sel-proyecto");
+  const selB = document.getElementById("sel-proyecto-b");
+  try {
+    const data = await (await fetch(`${API}/proyectos`, { headers: authHeaders() })).json();
+    const inner = '<option value="">— Selecciona proyecto —</option>' +
+      data.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+    selA.innerHTML = inner;
+    selB.innerHTML = inner;
+  } catch {
+    selA.innerHTML = '<option value="">Error cargando</option>';
+    selB.innerHTML = '<option value="">Error cargando</option>';
+  }
+  loadFromUrl();
+}
+
+// ── TIPOLOGÍAS ───────────────────────────────────
+async function cargarTipologias(pId, suffix) {
+  const selId = suffix === 'b' ? 'sel-tipologia-b' : 'sel-tipologia';
+  const sel = document.getElementById(selId);
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">Cargando...</option>';
+  resetModelo(suffix);
+  try {
+    const data = await (await fetch(`${API}/tipologias?proyecto_id=${pId}`, { headers: authHeaders() })).json();
+    sel.innerHTML = '<option value="">— Selecciona tipología —</option>';
+    data.forEach(t => sel.appendChild(new Option(t, t)));
+    sel.disabled = false;
+    if (data.length === 1) { sel.value = data[0]; sel.dispatchEvent(new Event("change")); }
+  } catch { sel.innerHTML = '<option value="">Error</option>'; }
+}
+
+// ── MODELOS ──────────────────────────────────────
+async function cargarModelos(pId, tip, suffix) {
+  const selId = suffix === 'b' ? 'sel-modelo-b'   : 'sel-modelo';
+  const btnId = suffix === 'b' ? 'btn-calcular-b' : 'btn-calcular';
+  const sel = document.getElementById(selId);
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">Cargando...</option>';
+  document.getElementById(btnId).disabled = true;
+  try {
+    const data = await (await fetch(`${API}/modelos?proyecto_id=${pId}&tipologia=${encodeURIComponent(tip)}`, { headers: authHeaders() })).json();
+    sel.innerHTML = '<option value="">— Selecciona modelo —</option>';
+    data.forEach(m => sel.appendChild(new Option(m, m)));
+    sel.disabled = false;
+    if (data.length === 1) { sel.value = data[0]; sel.dispatchEvent(new Event("change")); }
+  } catch { sel.innerHTML = '<option value="">Error</option>'; }
+}
+
+function resetModelo(suffix) {
+  const selId = suffix === 'b' ? 'sel-modelo-b'   : 'sel-modelo';
+  const btnId = suffix === 'b' ? 'btn-calcular-b' : 'btn-calcular';
+  document.getElementById(selId).innerHTML = '<option value="">Selecciona tipología</option>';
+  document.getElementById(selId).disabled = true;
+  document.getElementById(btnId).disabled = true;
+}
+
+// ── EVENTS A ─────────────────────────────────────
+document.getElementById("sel-proyecto").addEventListener("change", e => {
+  if (e.target.value) cargarTipologias(e.target.value, 'a');
+  else {
+    document.getElementById("sel-tipologia").innerHTML = '<option value="">Selecciona proyecto</option>';
+    document.getElementById("sel-tipologia").disabled = true;
+    resetModelo('a');
+  }
+});
+document.getElementById("sel-tipologia").addEventListener("change", e => {
+  const p = document.getElementById("sel-proyecto").value;
+  if (e.target.value && p) cargarModelos(p, e.target.value, 'a');
+  else resetModelo('a');
+});
+document.getElementById("sel-modelo").addEventListener("change", e => {
+  document.getElementById("btn-calcular").disabled = !e.target.value;
+});
+
+// ── EVENTS B ─────────────────────────────────────
+document.getElementById("sel-proyecto-b").addEventListener("change", e => {
+  if (e.target.value) cargarTipologias(e.target.value, 'b');
+  else {
+    document.getElementById("sel-tipologia-b").innerHTML = '<option value="">Selecciona proyecto</option>';
+    document.getElementById("sel-tipologia-b").disabled = true;
+    resetModelo('b');
+  }
+});
+document.getElementById("sel-tipologia-b").addEventListener("change", e => {
+  const p = document.getElementById("sel-proyecto-b").value;
+  if (e.target.value && p) cargarModelos(p, e.target.value, 'b');
+  else resetModelo('b');
+});
+document.getElementById("sel-modelo-b").addEventListener("change", e => {
+  document.getElementById("btn-calcular-b").disabled = !e.target.value;
+});
+
+// ── ENTER KEY ────────────────────────────────────
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const compareOpen = document.getElementById("card-compare-sel").style.display !== "none";
+  const btnB = document.getElementById("btn-calcular-b");
+  const btnA = document.getElementById("btn-calcular");
+  if (compareOpen && !btnB.disabled) btnB.click();
+  else if (!btnA.disabled) btnA.click();
+});
+
+// ── CALCULAR A ───────────────────────────────────
+document.getElementById("btn-calcular").addEventListener("click", async () => {
+  const pId  = document.getElementById("sel-proyecto").value;
+  const tip  = document.getElementById("sel-tipologia").value;
+  const mod  = document.getElementById("sel-modelo").value;
+  const ufM  = document.getElementById("uf-manual").value;
+  const errEl = document.getElementById("error-msg");
+  errEl.textContent = "";
+
+  const ufEnviar = ufM || ufCargado;
+  let url = `${API}/rangos?proyecto_id=${pId}&tipologia=${encodeURIComponent(tip)}&modelo=${encodeURIComponent(mod)}`;
+  if (ufEnviar) url += `&uf_manual=${ufEnviar}`;
+
+  const btn = document.getElementById("btn-calcular");
+  btn.textContent = "Calculando...";
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok) { errEl.textContent = (await r.json()).detail || "Error al calcular"; return; }
+    const d = await r.json();
+    ultimoResultado = d;
+    proyectoNombreA = document.getElementById("sel-proyecto").selectedOptions[0].textContent;
+
+    // If compare was active, reset it
+    if (modoCompare) {
+      modoCompare = false;
+      resultadoB = null;
+      document.getElementById("btn-comparar").style.display = "";
+      document.getElementById("btn-quitar-compare").style.display = "none";
+    }
+
+    mostrarResultadoSimple(d, proyectoNombreA);
+    saveHistory(d, proyectoNombreA);
+
+    // Update URL & tab title
+    history.replaceState({}, '', `?p=${pId}&t=${encodeURIComponent(tip)}&m=${encodeURIComponent(mod)}`);
+    document.title = `${proyectoNombreA} · ${tip} · ${mod} | Rangos de Renta`;
+
+  } catch { errEl.textContent = "Error de conexión con el servidor"; }
+  finally { btn.textContent = "Calcular Rangos de Renta"; btn.disabled = false; }
+});
+
+// ── CALCULAR B ───────────────────────────────────
+document.getElementById("btn-calcular-b").addEventListener("click", async () => {
+  const pId = document.getElementById("sel-proyecto-b").value;
+  const tip  = document.getElementById("sel-tipologia-b").value;
+  const mod  = document.getElementById("sel-modelo-b").value;
+  const ufM  = document.getElementById("uf-manual").value;
+
+  const ufEnviar = ufM || ufCargado;
+  let url = `${API}/rangos?proyecto_id=${pId}&tipologia=${encodeURIComponent(tip)}&modelo=${encodeURIComponent(mod)}`;
+  if (ufEnviar) url += `&uf_manual=${ufEnviar}`;
+
+  const btn = document.getElementById("btn-calcular-b");
+  btn.textContent = "Calculando...";
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(url);
+    if (!r.ok) { alert((await r.json()).detail || "Error al calcular"); return; }
+    const d = await r.json();
+    resultadoB = d;
+    proyectoNombreB = document.getElementById("sel-proyecto-b").selectedOptions[0].textContent;
+    modoCompare = true;
+
+    document.getElementById("card-compare-sel").style.display = "none";
+    mostrarComparacion(ultimoResultado, proyectoNombreA, d, proyectoNombreB);
+
+  } catch { alert("Error de conexión con el servidor"); }
+  finally { btn.textContent = "Calcular comparación"; btn.disabled = false; }
+});
+
+// ── RENDER CARDS ─────────────────────────────────
+const RENTAS = [
+  { cls:"minima",      label:"Renta Mínima",      factor:"×2,5", key:"renta_minima"      },
+  { cls:"ideal",       label:"Renta Ideal",        factor:"×3,0", key:"renta_ideal"       },
+  { cls:"garantizada", label:"Renta Garantizada",  factor:"×3,5", key:"renta_garantizada" },
+];
+
+function cardHTML(cls, label, factor, data) {
+  return `<div class="renta-card ${cls}">
+    <div class="rc-tipo">${label}</div>
+    <div class="rc-factor">${factor}</div>
+    <div class="rc-range">
+      <div class="rc-amount">
+        <div class="rc-clp">${fmt(data.desde_clp)}</div>
+        <div class="rc-uf">${fmtUF(data.desde_uf)}</div>
+      </div>
+      <div class="rc-sep">hasta</div>
+      <div class="rc-amount">
+        <div class="rc-clp">${fmt(data.hasta_clp)}</div>
+        <div class="rc-uf">${fmtUF(data.hasta_uf)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function colCards(d) {
+  return RENTAS.map(r => cardHTML(r.cls, r.label, r.factor, d[r.key])).join('');
+}
+
+// ── MOSTRAR SIMPLE ───────────────────────────────
+function mostrarResultadoSimple(d, nombre) {
+  document.getElementById("meta-row-a").innerHTML = [
+    `<span class="chip accent">${nombre}</span>`,
+    `<span class="chip">${d.tipologia}</span>`,
+    `<span class="chip">${d.modelo}</span>`,
+    `<span class="chip">${d.unidades} unid. disp.</span>`,
+    `<span class="chip">UF $${d.uf_valor.toLocaleString("es-CL",{minimumFractionDigits:2})} · ${d.uf_fecha}</span>`,
+  ].join("");
+
+  document.getElementById("result-body").innerHTML =
+    `<div class="renta-grid">${colCards(d)}</div>`;
+
+  document.getElementById("copy-preview").textContent = buildTexto(d, nombre);
+  document.getElementById("resultado").style.display = "block";
+  document.getElementById("resultado").scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
+
+// ── MOSTRAR COMPARACIÓN ──────────────────────────
+function mostrarComparacion(dA, nombreA, dB, nombreB) {
+  // Clear meta row — headers serve as labels
+  document.getElementById("meta-row-a").innerHTML =
+    `<span class="chip">UF $${dA.uf_valor.toLocaleString("es-CL",{minimumFractionDigits:2})} · ${dA.uf_fecha}</span>`;
+
+  document.getElementById("result-body").innerHTML = `
+    <div class="compare-cols">
+      <div class="compare-col">
+        <div class="compare-col-header">
+          <span class="compare-col-name">${nombreA}</span>
+          <span class="compare-col-sub">${dA.tipologia} · ${dA.modelo} · ${dA.unidades} unid.</span>
+        </div>
+        <div class="compare-col-cards">${colCards(dA)}</div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-header">
+          <span class="compare-col-name">${nombreB}</span>
+          <span class="compare-col-sub">${dB.tipologia} · ${dB.modelo} · ${dB.unidades} unid.</span>
+        </div>
+        <div class="compare-col-cards">${colCards(dB)}</div>
+      </div>
+    </div>`;
+
+  document.getElementById("copy-preview").textContent = buildTextoComp(dA, nombreA, dB, nombreB);
+
+  document.getElementById("btn-comparar").style.display = "none";
+  document.getElementById("btn-quitar-compare").style.display = "";
+  document.getElementById("resultado").scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
+
+// ── ROUNDING HELPERS ──────────────────────────────
+// desde: floor to nearest $100k
+// hasta: ceil to nearest $200k (≤ $2M) or $500k (> $2M)
+function roundDesde(n) { return Math.floor(n / 100000) * 100000; }
+function roundHasta(n) {
+  if (n <= 2000000) return Math.ceil(n / 200000) * 200000;
+  return Math.ceil(n / 500000) * 500000;
+}
+
+// ── TEXT BUILDERS ─────────────────────────────────
+function buildTexto(d, nombre) {
+  const rentas = [d.renta_minima, d.renta_ideal, d.renta_garantizada];
+  const lineas = rentas.map(r => {
+    const dR = fmt(roundDesde(r.desde_clp));
+    const hR = fmt(roundHasta(r.hasta_clp));
+    return `Entre:  ${fmt(r.desde_clp)} – ${fmt(r.hasta_clp)}   (Redondear: ${dR} – ${hR})`;
+  });
+  const masDeValor = fmt(roundHasta(d.renta_garantizada.hasta_clp));
+  return [
+    `${nombre} — ${d.tipologia} · ${d.modelo}`,
+    `¿Cuál es tu rango de renta?`,
+    ``,
+    ...lineas,
+    `Más de:  ${masDeValor}`,
+  ].join("\n");
+}
+
+function buildTextoComp(dA, nombreA, dB, nombreB) {
+  const lineasA = [dA.renta_minima, dA.renta_ideal, dA.renta_garantizada].map(r => {
+    const dR = fmt(roundDesde(r.desde_clp));
+    const hR = fmt(roundHasta(r.hasta_clp));
+    return `  Entre:  ${fmt(r.desde_clp)} – ${fmt(r.hasta_clp)}   (Redondear: ${dR} – ${hR})`;
+  });
+  const lineasB = [dB.renta_minima, dB.renta_ideal, dB.renta_garantizada].map(r => {
+    const dR = fmt(roundDesde(r.desde_clp));
+    const hR = fmt(roundHasta(r.hasta_clp));
+    return `  Entre:  ${fmt(r.desde_clp)} – ${fmt(r.hasta_clp)}   (Redondear: ${dR} – ${hR})`;
+  });
+  return [
+    `COMPARACIÓN — ¿Cuál es tu rango de renta?`,
+    ``,
+    `[A] ${nombreA} — ${dA.tipologia} · ${dA.modelo}`,
+    ...lineasA,
+    `  Más de:  ${fmt(roundHasta(dA.renta_garantizada.hasta_clp))}`,
+    ``,
+    `[B] ${nombreB} — ${dB.tipologia} · ${dB.modelo}`,
+    ...lineasB,
+    `  Más de:  ${fmt(roundHasta(dB.renta_garantizada.hasta_clp))}`,
+  ].join("\n");
+}
+
+// ── BOTONES DE ACCIÓN ─────────────────────────────
+document.getElementById("btn-copiar").addEventListener("click", () => {
+  if (!ultimoResultado) return;
+  const texto = modoCompare && resultadoB
+    ? buildTextoComp(ultimoResultado, proyectoNombreA, resultadoB, proyectoNombreB)
+    : buildTexto(ultimoResultado, proyectoNombreA);
+  navigator.clipboard.writeText(texto).then(() => showConfirm("copiar-confirm"));
+});
+
+document.getElementById("btn-copiar-url").addEventListener("click", () => {
+  navigator.clipboard.writeText(window.location.href).then(() => showConfirm("url-confirm"));
+});
+
+document.getElementById("btn-comparar").addEventListener("click", () => {
+  document.getElementById("card-compare-sel").style.display = "block";
+  document.getElementById("card-compare-sel").scrollIntoView({ behavior:"smooth" });
+});
+
+document.getElementById("btn-quitar-compare").addEventListener("click", () => {
+  modoCompare = false;
+  resultadoB = null;
+  document.getElementById("btn-quitar-compare").style.display = "none";
+  document.getElementById("btn-comparar").style.display = "";
+  document.getElementById("card-compare-sel").style.display = "none";
+  if (ultimoResultado) mostrarResultadoSimple(ultimoResultado, proyectoNombreA);
+});
+
+document.getElementById("btn-cancelar-compare").addEventListener("click", () => {
+  document.getElementById("card-compare-sel").style.display = "none";
+  document.getElementById("sel-proyecto-b").value = "";
+  document.getElementById("sel-tipologia-b").innerHTML = '<option value="">Selecciona proyecto</option>';
+  document.getElementById("sel-tipologia-b").disabled = true;
+  resetModelo('b');
+});
+
+// ── URL RESTORE ──────────────────────────────────
+async function loadFromUrl() {
+  const p = new URLSearchParams(location.search);
+  const pid = p.get('p'), tip = p.get('t'), mod = p.get('m');
+  if (!pid || !tip || !mod) return;
+
+  const selP = document.getElementById('sel-proyecto');
+  if (!Array.from(selP.options).find(o => o.value === pid)) return;
+
+  selP.value = pid;
+  try {
+    await loadSelectors('a', pid, tip, mod);
+    document.getElementById('btn-calcular').click();
+  } catch(e) { console.warn('URL restore failed:', e); }
+}
+
+// ── INIT ─────────────────────────────────────────
+function init() {
+  cargarUF();
+  cargarProyectos();
+  renderHistory();
+}
+
+// Auto-init si ya hay sesión activa
+if (sessionStorage.getItem('rangos-token')) {
+  init();
+}
+</script>
+</body>
+</html>
