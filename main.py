@@ -124,7 +124,7 @@ def get_modelos(proyecto_id: str, tipologia: str, _=Depends(require_auth)):
     return [r[0] for r in rows]
 
 @app.get("/rangos")
-def get_rangos(proyecto_id: str, tipologia: str, modelo: str,
+def get_rangos(proyecto_id: str, tipologia: str, modelo: str = "Todos",
                uf_manual: float = None, _=Depends(require_auth)):
     uf_valor, uf_fecha = load_uf()
     if uf_manual:
@@ -135,28 +135,46 @@ def get_rangos(proyecto_id: str, tipologia: str, modelo: str,
 
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""
-        SELECT
-            MIN((pr->>'monto')::numeric) as precio_desde,
-            MAX((pr->>'monto')::numeric) as precio_hasta,
-            COUNT(DISTINCT u.id) as unidades
-        FROM unidades u,
-             jsonb_array_elements(u.precios) pr
-        WHERE u.propiedad_id = %s
-          AND u.estado = '100'
-          AND u.raw->>'tipologia' = %s
-          AND (
-              CASE
-                  WHEN %s = 'Estudio' THEN u.raw->>'modelo' ILIKE 'Estudio%%'
-                  WHEN %s = 'Studio'  THEN u.raw->>'modelo' ILIKE 'Studio%%'
-                  ELSE u.raw->>'modelo' = %s
-              END
-          )
-          AND pr->>'tipo' = 'unidad_divisa_monto.tipo.lista'
-          AND pr->>'concepto' = 'Arriendo'
-          AND (pr->>'monto')::numeric < 70
-          AND (pr->>'monto')::numeric > 0;
-    """, (proyecto_id, tipologia, modelo, modelo, modelo))
+
+    if modelo == "Todos":
+        cur.execute("""
+            SELECT
+                MIN((pr->>'monto')::numeric) as precio_desde,
+                MAX((pr->>'monto')::numeric) as precio_hasta,
+                COUNT(DISTINCT u.id) as unidades
+            FROM unidades u,
+                 jsonb_array_elements(u.precios) pr
+            WHERE u.propiedad_id = %s
+              AND u.estado = '100'
+              AND u.raw->>'tipologia' = %s
+              AND pr->>'tipo' = 'unidad_divisa_monto.tipo.lista'
+              AND pr->>'concepto' = 'Arriendo'
+              AND (pr->>'monto')::numeric < 70
+              AND (pr->>'monto')::numeric > 0;
+        """, (proyecto_id, tipologia))
+    else:
+        cur.execute("""
+            SELECT
+                MIN((pr->>'monto')::numeric) as precio_desde,
+                MAX((pr->>'monto')::numeric) as precio_hasta,
+                COUNT(DISTINCT u.id) as unidades
+            FROM unidades u,
+                 jsonb_array_elements(u.precios) pr
+            WHERE u.propiedad_id = %s
+              AND u.estado = '100'
+              AND u.raw->>'tipologia' = %s
+              AND (
+                  CASE
+                      WHEN %s = 'Estudio' THEN u.raw->>'modelo' ILIKE 'Estudio%%'
+                      WHEN %s = 'Studio'  THEN u.raw->>'modelo' ILIKE 'Studio%%'
+                      ELSE u.raw->>'modelo' = %s
+                  END
+              )
+              AND pr->>'tipo' = 'unidad_divisa_monto.tipo.lista'
+              AND pr->>'concepto' = 'Arriendo'
+              AND (pr->>'monto')::numeric < 70
+              AND (pr->>'monto')::numeric > 0;
+        """, (proyecto_id, tipologia, modelo, modelo, modelo))
 
     row = cur.fetchone()
     conn.close()

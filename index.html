@@ -610,7 +610,7 @@ function renderHistory() {
   const chips = document.getElementById('recientes-chips');
   if (!h.length) { wrap.style.display = 'none'; return; }
   chips.innerHTML = h.map((e, i) =>
-    `<button class="hist-chip" onclick="cargarDesdeHistorial(${i})">${e.proyecto} · ${e.tipologia} · ${e.modelo}</button>`
+    `<button class="hist-chip" onclick="cargarDesdeHistorial(${i})">${e.proyecto} · ${e.tipologia} · ${e.modelo === 'Todos' ? 'Todos los modelos' : e.modelo}</button>`
   ).join('');
   wrap.style.display = 'flex';
 }
@@ -648,6 +648,7 @@ async function loadSelectors(suffix, pid, tip, mod) {
 
   const modData = await (await fetch(`${API}/modelos?proyecto_id=${pid}&tipologia=${encodeURIComponent(tip)}`, { headers: authHeaders() })).json();
   modEl.innerHTML = '<option value="">— Selecciona modelo —</option>';
+  if (modData.length > 1) modEl.appendChild(new Option('Todos los modelos', 'Todos'));
   modData.forEach(m => modEl.appendChild(new Option(m, m)));
   modEl.disabled = false;
   modEl.value = mod;
@@ -714,9 +715,16 @@ async function cargarModelos(pId, tip, suffix) {
   try {
     const data = await (await fetch(`${API}/modelos?proyecto_id=${pId}&tipologia=${encodeURIComponent(tip)}`, { headers: authHeaders() })).json();
     sel.innerHTML = '<option value="">— Selecciona modelo —</option>';
+    if (data.length > 1) sel.appendChild(new Option('Todos los modelos', 'Todos'));
     data.forEach(m => sel.appendChild(new Option(m, m)));
     sel.disabled = false;
-    if (data.length === 1) { sel.value = data[0]; sel.dispatchEvent(new Event("change")); }
+    if (data.length > 1) {
+      sel.value = 'Todos';
+      document.getElementById(btnId).disabled = false;
+    } else if (data.length === 1) {
+      sel.value = data[0];
+      sel.dispatchEvent(new Event("change"));
+    }
   } catch { sel.innerHTML = '<option value="">Error</option>'; }
 }
 
@@ -881,7 +889,7 @@ function mostrarResultadoSimple(d, nombre) {
   document.getElementById("meta-row-a").innerHTML = [
     `<span class="chip accent">${nombre}</span>`,
     `<span class="chip">${d.tipologia}</span>`,
-    `<span class="chip">${d.modelo}</span>`,
+    `<span class="chip">${d.modelo === 'Todos' ? 'Todos los modelos' : d.modelo}</span>`,
     `<span class="chip">${d.unidades} unid. disp.</span>`,
     `<span class="chip">UF $${d.uf_valor.toLocaleString("es-CL",{minimumFractionDigits:2})} · ${d.uf_fecha}</span>`,
   ].join("");
@@ -905,14 +913,14 @@ function mostrarComparacion(dA, nombreA, dB, nombreB) {
       <div class="compare-col">
         <div class="compare-col-header">
           <span class="compare-col-name">${nombreA}</span>
-          <span class="compare-col-sub">${dA.tipologia} · ${dA.modelo} · ${dA.unidades} unid.</span>
+          <span class="compare-col-sub">${dA.tipologia} · ${dA.modelo === 'Todos' ? 'Todos los modelos' : dA.modelo} · ${dA.unidades} unid.</span>
         </div>
         <div class="compare-col-cards">${colCards(dA)}</div>
       </div>
       <div class="compare-col">
         <div class="compare-col-header">
           <span class="compare-col-name">${nombreB}</span>
-          <span class="compare-col-sub">${dB.tipologia} · ${dB.modelo} · ${dB.unidades} unid.</span>
+          <span class="compare-col-sub">${dB.tipologia} · ${dB.modelo === 'Todos' ? 'Todos los modelos' : dB.modelo} · ${dB.unidades} unid.</span>
         </div>
         <div class="compare-col-cards">${colCards(dB)}</div>
       </div>
@@ -942,7 +950,7 @@ function buildTexto(d, nombre) {
   );
   const masDeValor = fmt(roundHasta(d.renta_garantizada.hasta_clp));
   return [
-    `${nombre} — ${d.tipologia} · ${d.modelo}`,
+    `${nombre} — ${d.tipologia} · ${d.modelo === 'Todos' ? 'Todos los modelos' : d.modelo}`,
     ``,
     `¿Cuál es tu rango de renta?`,
     ``,
@@ -959,7 +967,7 @@ function buildTextoComp(dA, nombreA, dB, nombreB) {
       `  Entre:  ${fmt(roundDesde(r.desde_clp))} – ${fmt(roundHasta(r.hasta_clp))}`
     );
     return [
-      `[${tag}] ${nombre} — ${d.tipologia} · ${d.modelo}`,
+      `[${tag}] ${nombre} — ${d.tipologia} · ${d.modelo === 'Todos' ? 'Todos los modelos' : d.modelo}`,
       ``,
       `  ¿Cuál es tu rango de renta?`,
       ``,
