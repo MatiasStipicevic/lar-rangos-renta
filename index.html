@@ -937,42 +937,44 @@ function roundHasta(n) {
 // ── TEXT BUILDERS ─────────────────────────────────
 function buildTexto(d, nombre) {
   const rentas = [d.renta_minima, d.renta_ideal, d.renta_garantizada];
-  const lineas = rentas.map(r => {
-    const dR = fmt(roundDesde(r.desde_clp));
-    const hR = fmt(roundHasta(r.hasta_clp));
-    return `Entre:  ${fmt(r.desde_clp)} – ${fmt(r.hasta_clp)}   (Redondear: ${dR} – ${hR})`;
-  });
+  const lineas = rentas.map(r =>
+    `Entre:  ${fmt(roundDesde(r.desde_clp))} – ${fmt(roundHasta(r.hasta_clp))}`
+  );
   const masDeValor = fmt(roundHasta(d.renta_garantizada.hasta_clp));
   return [
     `${nombre} — ${d.tipologia} · ${d.modelo}`,
+    ``,
     `¿Cuál es tu rango de renta?`,
     ``,
-    ...lineas,
+    ``,
+    lineas.join("\n\n"),
+    ``,
     `Más de:  ${masDeValor}`,
   ].join("\n");
 }
 
 function buildTextoComp(dA, nombreA, dB, nombreB) {
-  const lineasA = [dA.renta_minima, dA.renta_ideal, dA.renta_garantizada].map(r => {
-    const dR = fmt(roundDesde(r.desde_clp));
-    const hR = fmt(roundHasta(r.hasta_clp));
-    return `  Entre:  ${fmt(r.desde_clp)} – ${fmt(r.hasta_clp)}   (Redondear: ${dR} – ${hR})`;
-  });
-  const lineasB = [dB.renta_minima, dB.renta_ideal, dB.renta_garantizada].map(r => {
-    const dR = fmt(roundDesde(r.desde_clp));
-    const hR = fmt(roundHasta(r.hasta_clp));
-    return `  Entre:  ${fmt(r.desde_clp)} – ${fmt(r.hasta_clp)}   (Redondear: ${dR} – ${hR})`;
-  });
+  const bloque = (d, nombre, tag) => {
+    const lineas = [d.renta_minima, d.renta_ideal, d.renta_garantizada].map(r =>
+      `  Entre:  ${fmt(roundDesde(r.desde_clp))} – ${fmt(roundHasta(r.hasta_clp))}`
+    );
+    return [
+      `[${tag}] ${nombre} — ${d.tipologia} · ${d.modelo}`,
+      ``,
+      `  ¿Cuál es tu rango de renta?`,
+      ``,
+      ``,
+      lineas.join("\n\n"),
+      ``,
+      `  Más de:  ${fmt(roundHasta(d.renta_garantizada.hasta_clp))}`,
+    ].join("\n");
+  };
   return [
-    `COMPARACIÓN — ¿Cuál es tu rango de renta?`,
+    bloque(dA, nombreA, 'A'),
     ``,
-    `[A] ${nombreA} — ${dA.tipologia} · ${dA.modelo}`,
-    ...lineasA,
-    `  Más de:  ${fmt(roundHasta(dA.renta_garantizada.hasta_clp))}`,
+    `─`.repeat(48),
     ``,
-    `[B] ${nombreB} — ${dB.tipologia} · ${dB.modelo}`,
-    ...lineasB,
-    `  Más de:  ${fmt(roundHasta(dB.renta_garantizada.hasta_clp))}`,
+    bloque(dB, nombreB, 'B'),
   ].join("\n");
 }
 
